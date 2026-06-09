@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+  <title>🎲 Défis pour ton anniversaire</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      min-height: 100vh;
+      background: linear-gradient(145deg, #f3e3d0, #e0cbb0);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Segoe UI', 'Georgia', serif;
+      padding: 20px;
+    }
+    .container {
+      text-align: center;
+      background: rgba(255,255,240,0.95);
+      border-radius: 50px;
+      padding: 40px 25px;
+      max-width: 400px;
+      width: 100%;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    }
+    h1 { color: #b45f2b; margin-bottom: 10px; }
+    .sous-titre { color: #e67e22; margin-bottom: 30px; font-size: 0.9rem; }
+    .defi {
+      background: #fff7ed;
+      border-radius: 30px;
+      padding: 30px 20px;
+      margin: 20px 0;
+      border: 2px solid #f3bc6c;
+    }
+    .defi-emoji { font-size: 3rem; margin-bottom: 15px; }
+    .defi-texte {
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #5a3a25;
+      margin-bottom: 20px;
+    }
+    .btn {
+      background: linear-gradient(135deg, #f3bc6c, #e67e22);
+      border: none;
+      border-radius: 50px;
+      padding: 12px 24px;
+      color: white;
+      font-weight: bold;
+      font-size: 1rem;
+      cursor: pointer;
+      margin: 5px;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn-secondaire {
+      background: linear-gradient(135deg, #c9a76b, #b87e48);
+    }
+    .footer {
+      margin-top: 20px;
+      font-size: 0.7rem;
+      color: #b87e48;
+    }
+    #confetti-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1000;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>🎲 DÉFIS D'ANNIVERSAIRE 🎲</h1>
+  <div class="sous-titre">À réaliser... quand tu veux !</div>
+  
+  <div class="defi">
+    <div class="defi-emoji" id="defiEmoji">🎁</div>
+    <div class="defi-texte" id="defiTexte">Clique sur le dé pour découvrir ton défi !</div>
+    <button class="btn" id="btnDefi">🎲 Nouveau défi 🎲</button>
+  </div>
+  
+  <div>
+    <button class="btn btn-secondaire" id="btnRetour">📖 Retour à l'album</button>
+  </div>
+  <div class="footer">✨ Chaque défi est une petite mission pour notre amitié ✨</div>
+</div>
+<canvas id="confetti-canvas"></canvas>
+
+<script>
+  // Liste des défis pour SON jour d'anniversaire
+  const defis = [
+    { emoji: "📸", texte: "Prends un selfie avec ton plus beau sourire et envoie-le moi !" },
+    { emoji: "🍕", texte: "Mange quelque chose de délicieux (et pense à moi en le mangeant) 🍰" },
+    { emoji: "🎵", texte: "Écoute notre chanson préférée et danse comme si personne ne regardait !" },
+    { emoji: "💌", texte: "Écris un petit message que tu me liras plus tard, je suis curieuse !" },
+    { emoji: "🎬", texte: "Regarde 5 minutes d'un film qu'on adore et pense à nos fous rires" },
+    { emoji: "☎️", texte: "Appelle-moi ou envoie-moi un vocal pour me dire un mot doux" },
+    { emoji: "📝", texte: "Fais une liste de 3 choses pour lesquelles tu es reconnaissante aujourd'hui" },
+    { emoji: "🕯️", texte: "Fais un vœu (tu peux le garder secret, mais souffle une bougie imaginaire)" },
+    { emoji: "🎁", texte: "Offre-toi un petit cadeau (même un carré de chocolat, ça compte !)" },
+    { emoji: "💭", texte: "Pense à notre meilleur souvenir ensemble et souris" },
+    { emoji: "📖", texte: "Relis un vieux message de nous qui te fait rire" },
+    { emoji: "🌟", texte: "Dis-toi dans le miroir : 'Je suis géniale et je mérite tout le bonheur du monde'" },
+    { emoji: "🎈", texte: "Fais un câlin à un coussin en imaginant que c'est moi" },
+    { emoji: "🫂", texte: "Envoie un message à quelqu'un que tu aimes (autre que moi, oui ça existe)" },
+    { emoji: "✨", texte: "Ferme les yeux et fais 3 vœux pour l'année à venir" }
+  ];
+  
+  let canvas = document.getElementById('confetti-canvas'), ctx = canvas.getContext('2d'), animFrame = null;
+  function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+  window.addEventListener('resize', resizeCanvas);
+  resizeCanvas();
+  
+  function startConfetti() {
+    resizeCanvas();
+    let active = true;
+    const particles = [], colors = ['#ffd966', '#ffb347', '#ff6b6b', '#f9a26c', '#d96c6c'];
+    for (let i = 0; i < 100; i++) {
+      particles.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height - canvas.height, size: Math.random() * 5 + 2, speedY: Math.random() * 4 + 2, speedX: (Math.random() - 0.5) * 2, color: colors[Math.floor(Math.random() * colors.length)], rotation: Math.random() * 360, rotSpeed: (Math.random() - 0.5) * 6 });
+    }
+    function draw() { 
+      if (!active) return; 
+      ctx.clearRect(0, 0, canvas.width, canvas.height); 
+      let still = false; 
+      for (let p of particles) { 
+        p.y += p.speedY; p.x += p.speedX; p.rotation += p.rotSpeed; 
+        if (p.y < canvas.height + 50) still = true; 
+        ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rotation * Math.PI / 180); 
+        ctx.fillStyle = p.color; ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size/1.5); ctx.restore(); 
+      } 
+      if (still) animFrame = requestAnimationFrame(draw); else cancelAnimationFrame(animFrame); 
+    }
+    if (animFrame) cancelAnimationFrame(animFrame); draw(); 
+    setTimeout(() => { active = false; }, 2000);
+  }
+  
+  function afficherDefiAleatoire() {
+    const index = Math.floor(Math.random() * defis.length);
+    document.getElementById('defiEmoji').innerHTML = defis[index].emoji;
+    document.getElementById('defiTexte').innerHTML = defis[index].texte;
+    startConfetti();
+  }
+  
+  document.getElementById('btnDefi').addEventListener('click', afficherDefiAleatoire);
+  document.getElementById('btnRetour').addEventListener('click', () => {
+    window.location.href = 'index.html';
+  });
+  
+  // Afficher un premier défi au chargement
+  afficherDefiAleatoire();
+</script>
+</body>
+</html>

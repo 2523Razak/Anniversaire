@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+  <title>🎂 Souffle les bougies !</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
+    body {
+      min-height: 100vh;
+      background: radial-gradient(circle at bottom, #020111 0%, #000000 70%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Segoe UI', 'Georgia', serif;
+      overflow-x: hidden;
+      position: relative;
+      padding: 10px;
+    }
+    
+    /* Conteneur principal */
+    .container {
+      text-align: center;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(10px);
+      border-radius: 50px;
+      padding: 15px 20px;
+      max-width: 400px;
+      width: 90%;
+      z-index: 20;
+      border: 1px solid rgba(255,215,0,0.3);
+      margin-bottom: 20px;
+      transition: all 0.5s ease-out;
+    }
+    
+    .container.hide {
+      opacity: 0;
+      transform: translateY(-50px);
+      pointer-events: none;
+      display: none;
+    }
+    
+    h1 { 
+      color: #ffd700; 
+      margin-bottom: 8px; 
+      font-size: 1.1rem; 
+      text-shadow: 0 0 10px rgba(255,215,0,0.5);
+    }
+    
+    .timer {
+      font-size: 2.2rem;
+      font-weight: bold;
+      font-family: monospace;
+      letter-spacing: 3px;
+      color: #ffd700;
+      background: rgba(0,0,0,0.5);
+      padding: 8px;
+      border-radius: 50px;
+      margin: 8px 0;
+      text-shadow: 0 0 10px rgba(255,215,0,0.5);
+    }
+    
+    .message-sorciere {
+      font-size: 0.9rem;
+      color: #ffd700;
+      margin: 8px 0;
+      font-style: italic;
+      animation: pulse 1.5s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; text-shadow: 0 0 5px gold; }
+      50% { opacity: 0.6; text-shadow: 0 0 15px orange; }
+    }
+    
+    .souffle-indication {
+      font-size: 0.85rem;
+      color: #ffd700;
+      margin-top: 8px;
+      animation: pulse 1s infinite;
+      display: none;
+    }
+    
+    /* ========== GÂTEAU CSS ========== */
+    .cake-wrapper {
+      position: relative;
+      z-index: 15;
+      margin: 10px auto;
+      display: flex;
+      justify-content: center;
+      opacity: 0;
+      transform: scale(0.6);
+      transition: all 0.5s ease-out;
+    }
+    
+    .cake-wrapper.visible {
+      opacity: 1;
+      transform: scale(0.9);
+    }
+    
+    .cake-container {
+      position: relative;
+      width: 350px;
+      height: 350px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      padding-bottom: 30px;
+    }
+    
+    .plate {
+      width: 280px;
+      height: 25px;
+      background: #a9e5eb;
+      border: 3px solid #57b3bc;
+      border-radius: 50%;
+      position: absolute;
+      bottom: 15px;
+      z-index: 1;
+      box-shadow: 0 6px 0 #8ecad1;
+    }
+    
+    .tier {
+      position: relative;
+      background: #f1c280;
+      border: 3px solid #3c2f2f;
+      border-radius: 50% 50% 0 0 / 20% 20% 0 0;
+      z-index: 2;
+    }
+    
+    .frosting {
+      position: absolute;
+      top: -2px;
+      left: -3px;
+      width: 100%;
+      height: 50%;
+      background: #ff9ebb;
+      border: 3px solid #3c2f2f;
+      border-radius: 50% 50% 30% 30% / 40% 40% 40% 40%;
+      z-index: 3;
+    }
+    
+    .tier-bottom {
+      width: 210px;
+      height: 100px;
+      margin-bottom: 12px;
+    }
+    
+    .tier-top {
+      width: 160px;
+      height: 75px;
+      margin-bottom: -8px;
+      z-index: 4;
+    }
+    
+    .candles-container {
+      position: absolute;
+      top: 65px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 20px;
+      z-index: 10;
+    }
+    
+    .candle {
+      position: relative;
+      width: 10px;
+      height: 45px;
+      background: linear-gradient(90deg, #ff94c2 50%, #ffffff 50%);
+      background-size: 12px 12px;
+      border: 2px solid #3c2f2f;
+      border-radius: 3px 3px 0 0;
+      cursor: pointer;
+    }
+    
+    .candle::before {
+      content: '';
+      position: absolute;
+      top: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 2px;
+      height: 6px;
+      background: #3c2f2f;
+    }
+    
+    .flame {
+      position: absolute;
+      top: -28px;
+      left: 50%;
+      transform: translateX(-50%) scale(0);
+      width: 14px;
+      height: 20px;
+      background: radial-gradient(circle at 50% 80%, #ffdf00, #ff5e00);
+      border-radius: 50% 50% 20% 20% / 60% 60% 40% 40%;
+      box-shadow: 0 0 8px #ffdf00, 0 0 15px #ff5e00;
+      transition: transform 0.3s ease-out;
+      z-index: 11;
+    }
+    
+    .flame.lit {
+      transform: translateX(-50%) scale(1);
+      animation: flicker 0.1s ease-in-out infinite alternate;
+    }
+    
+    @keyframes flicker {
+      0% { transform: translateX(-50%) scale(1) skewX(-2deg); }
+      100% { transform: translateX(-50%) scale(1.05) skewX(2deg); }
+    }
+    
+    .cherry {
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      background: #d62828;
+      border: 2px solid #3c2f2f;
+      border-radius: 50%;
+      z-index: 5;
+    }
+    .c1 { top: -6px; left: 15px; }
+    .c2 { top: -6px; right: 15px; }
+    .c3 { top: 28px; left: 40px; }
+    .c4 { top: 28px; right: 40px; }
+    
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 5;
+    }
+    
+    /* Responsive mobile */
+    @media (max-width: 480px) {
+      body { padding: 5px; }
+      .container { padding: 10px 15px; margin-bottom: 10px; }
+      .timer { font-size: 1.8rem; padding: 6px; }
+      h1 { font-size: 0.9rem; }
+      .message-sorciere { font-size: 0.8rem; }
+      .cake-wrapper.visible { transform: scale(0.75); margin: -20px auto; }
+      .cake-container { width: 320px; height: 320px; }
+      .souffle-indication { font-size: 0.75rem; }
+    }
+    
+    @media (max-width: 380px) {
+      .cake-wrapper.visible { transform: scale(0.65); margin: -40px auto; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container" id="app">
+  <h1>🎆 PRÉPARATION MAGIQUE 🎆</h1>
+  <div class="timer" id="timer">03:44:50</div>
+  <div class="message-sorciere" id="messageSorciere">🧙‍♀️ Une petite sorcière arrive bientôt... 🧙‍♀️</div>
+  <div class="souffle-indication" id="souffleIndication">✨ Souffle sur les bougies (micro ou clique dessus) ! ✨</div>
+</div>
+
+<div class="cake-wrapper" id="cakeWrapper">
+  <div class="cake-container">
+    <div class="candles-container">
+      <div class="candle" id="candle0"><div class="flame" id="flame0"></div></div>
+      <div class="candle" id="candle1"><div class="flame" id="flame1"></div></div>
+      <div class="candle" id="candle2"><div class="flame" id="flame2"></div></div>
+    </div>
+    <div class="tier tier-top">
+      <div class="frosting"></div>
+      <div class="cherry c1"></div>
+      <div class="cherry c2"></div>
+    </div>
+    <div class="tier tier-bottom">
+      <div class="frosting"></div>
+      <div class="cherry c3"></div>
+      <div class="cherry c4"></div>
+    </div>
+    <div class="plate"></div>
+  </div>
+</div>
+
+<canvas id="canvas"></canvas>
+
+<script>
+  const canvas = document.getElementById("canvas");
+  const ctx = canvas.getContext("2d");
+  
+  // ========== VARIABLES ==========
+  let fireworks = [];
+  let bougiesEteintes = false;
+  let gateauApparu = false;
+  let ecouteSouffleActive = false;
+  let sonJoue = false;
+  
+  let secondesEcoulees = 0;
+  
+  const container = document.getElementById('app');
+  const timerDiv = document.getElementById('timer');
+  const messageSorciereDiv = document.getElementById('messageSorciere');
+  const souffleIndication = document.getElementById('souffleIndication');
+  const cakeWrapper = document.getElementById('cakeWrapper');
+  
+  const flames = [
+    document.getElementById('flame0'),
+    document.getElementById('flame1'),
+    document.getElementById('flame2')
+  ];
+  
+  // ========== REDIMENSIONNEMENT CANVAS ==========
+  function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  window.addEventListener("resize", resizeCanvas);
+  resizeCanvas();
+  
+  // ========== FEU D'ARTIFICE ==========
+  class Firework {
+    constructor(x, y, targetY) {
+      this.x = x !== undefined ? x : Math.random() * canvas.width;
+      this.y = y !== undefined ? y : canvas.height;
+      this.targetY = targetY !== undefined ? targetY : Math.random() * canvas.height / 2.5;
+      this.speed = Math.random() * 3 + 4;
+      this.particles = [];
+      this.exploded = false;
+      this.color = `hsl(${Math.random() * 360}, 100%, 60%)`;
+    }
+  
+    update() {
+      if (!this.exploded) {
+        this.y -= this.speed;
+        if (this.y <= this.targetY) this.explode();
+      } else {
+        this.particles.forEach(p => p.update());
+        this.particles = this.particles.filter(p => p.life > 0);
+      }
+    }
+  
+    draw() {
+      if (!this.exploded) {
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, 3, 0, Math.PI * 2);
+        ctx.fill();
+      } else {
+        this.particles.forEach(p => p.draw());
+      }
+    }
+  
+    explode() {
+      this.exploded = true;
+      for (let i = 0; i < 80; i++) {
+        this.particles.push(new Particle(this.x, this.y, this.color));
+      }
+    }
+  }
+  
+  class Particle {
+    constructor(x, y, color) {
+      this.x = x;
+      this.y = y;
+      this.speed = Math.random() * 5 + 1;
+      this.angle = Math.random() * Math.PI * 2;
+      this.life = 100;
+      this.color = color;
+      this.size = Math.random() * 3 + 2;
+    }
+  
+    update() {
+      this.x += Math.cos(this.angle) * this.speed;
+      this.y += Math.sin(this.angle) * this.speed;
+      this.life -= 2;
+    }
+  
+    draw() {
+      ctx.globalAlpha = this.life / 100;
+      ctx.fillStyle = this.color;
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+    }
+  }
+  
+  // ========== LANCER FEUX D'ARTIFICE ==========
+  function lancerFeuxArtifice() {
+    messageSorciereDiv.innerHTML = "🎆✨ FEUX D'ARTIFICE MAGIQUES ! ✨🎆";
+    
+    for (let i = 0; i < 60; i++) {
+      setTimeout(() => {
+        const fw = new Firework();
+        fireworks.push(fw);
+      }, i * 100);
+    }
+    
+    setTimeout(() => {
+      messageSorciereDiv.innerHTML = "🍰 Apparition du gâteau... 🍰";
+      cakeWrapper.classList.add('visible');
+      gateauApparu = true;
+      
+      // Allumer les bougies
+      flames.forEach(flame => {
+        flame.classList.add('lit');
+      });
+      
+      setTimeout(() => {
+        messageSorciereDiv.innerHTML = "🎂 Souffle les bougies maintenant ! 🎂";
+        souffleIndication.style.display = "block";
+        activerSouffle();
+      }, 1000);
+    }, 4000);
+  }
+  
+  // ========== ÉTEINDRE LES BOUGIES ==========
+  function eteindreBougies() {
+    if (bougiesEteintes) return;
+    bougiesEteintes = true;
+    
+    messageSorciereDiv.innerHTML = "💨 TU AS SOUFFLÉ ! MAGIE EN ACTION... 💨";
+    souffleIndication.style.display = "none";
+    
+    // Éteindre les flammes
+    flames.forEach(flame => {
+      flame.classList.remove('lit');
+    });
+    
+    // Explosion de joie
+    setTimeout(() => {
+      messageSorciereDiv.innerHTML = "💥 LE GÂTEAU EXPLOSE DE BONHEUR ! 💥";
+      
+      for (let i = 0; i < 50; i++) {
+        setTimeout(() => {
+          const fw = new Firework(
+            canvas.width/2 + (Math.random() - 0.5) * 400,
+            canvas.height/2 + (Math.random() - 0.5) * 300,
+            canvas.height/2 + (Math.random() - 0.5) * 200
+          );
+          fireworks.push(fw);
+        }, i * 60);
+      }
+    }, 500);
+    
+    // Afficher message final
+    setTimeout(() => {
+      const messageDiv = document.createElement('div');
+      messageDiv.style.position = 'fixed';
+      messageDiv.style.top = '50%';
+      messageDiv.style.left = '50%';
+      messageDiv.style.transform = 'translate(-50%, -50%)';
+      messageDiv.style.background = 'rgba(0,0,0,0.95)';
+      messageDiv.style.color = '#ffd700';
+      messageDiv.style.padding = '20px 25px';
+      messageDiv.style.borderRadius = '25px';
+      messageDiv.style.textAlign = 'center';
+      messageDiv.style.zIndex = '1000';
+      messageDiv.style.fontSize = '1rem';
+      messageDiv.style.border = '2px solid gold';
+      messageDiv.style.backdropFilter = 'blur(10px)';
+      messageDiv.style.maxWidth = '90%';
+      messageDiv.innerHTML = `
+        🎂✨ JOYEUX ANNIVERSAIRE ! ✨🎂
+        <div style="font-size: 0.9rem; margin-top: 15px; color: white; line-height: 1.5;">
+          💖 Ma petite sorcière préférée,<br><br>
+          Je te souhaite le plus merveilleux des anniversaires !<br>
+          Merci pour ces années de bonheur, de rires et de magie.<br><br>
+          Je t'aime très fort, ma marmotte adorée ! 🫶<br><br>
+          🎁 Que cette nouvelle année soit remplie de joie ! 🎁
+        </div>
+        <button id="btnContinuer" style="margin-top: 20px; padding: 10px 30px; background: linear-gradient(135deg, #ffd700, #ff8c00); border: none; border-radius: 50px; font-weight: bold; cursor: pointer; font-size: 0.9rem;">✨ Continuer ✨</button>
+      `;
+      document.body.appendChild(messageDiv);
+      
+      document.getElementById('btnContinuer').addEventListener('click', () => {
+        window.location.href = 'defis.html';
+      });
+    }, 2500);
+  }
+  
+  // ========== ACTIVER SOUFFLE ==========
+  function activerSouffle() {
+    ecouteSouffleActive = true;
+    
+    // Détection micro
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      navigator.mediaDevices.getUserMedia({ audio: true })
+        .then(stream => {
+          const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          const source = audioCtx.createMediaStreamSource(stream);
+          const analyser = audioCtx.createAnalyser();
+          source.connect(analyser);
+          analyser.fftSize = 256;
+          const bufferLength = analyser.frequencyBinCount;
+          const dataArray = new Uint8Array(bufferLength);
+          
+          function detectSouffle() {
+            if (!bougiesEteintes && ecouteSouffleActive && gateauApparu) {
+              analyser.getByteFrequencyData(dataArray);
+              let sum = 0;
+              for (let i = 0; i < bufferLength; i++) sum += dataArray[i];
+              let avg = sum / bufferLength;
+              if (avg > 70) {
+                eteindreBougies();
+              }
+            }
+            requestAnimationFrame(detectSouffle);
+          }
+          detectSouffle();
+          audioCtx.resume();
+        })
+        .catch(err => console.log("Micro non accessible, clique sur les bougies"));
+    }
+    
+    // Détection clic sur les bougies
+    document.querySelectorAll('.candle').forEach((candle) => {
+      candle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (!bougiesEteintes && ecouteSouffleActive && gateauApparu) {
+          eteindreBougies();
+        }
+      });
+    });
+  }
+  
+  // ========== COMPTE À REBOURS 10 SECONDES ==========
+  function formaterCompte(secs) {
+    const baseHeure = 3;
+    const baseMinute = 44;
+    const baseSeconde = 50;
+    
+    let totalSecondes = baseSeconde + secs;
+    let minutes = baseMinute;
+    let heures = baseHeure;
+    
+    if (totalSecondes >= 60) {
+      minutes += Math.floor(totalSecondes / 60);
+      totalSecondes = totalSecondes % 60;
+    }
+    if (minutes >= 60) {
+      heures += Math.floor(minutes / 60);
+      minutes = minutes % 60;
+    }
+    
+    return `${heures.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${totalSecondes.toString().padStart(2, '0')}`;
+  }
+  
+  function demarrerCompteARebours() {
+    let countdown = 0;
+    
+    const interval = setInterval(() => {
+      if (countdown >= 10) {
+        clearInterval(interval);
+        timerDiv.innerHTML = "03:45:00";
+        messageSorciereDiv.innerHTML = "🎉 C'EST L'HEURE ! LA SORCIÈRE ARRIVE ! 🎉";
+        
+        // Faire disparaître le compte à rebours
+        container.classList.add('hide');
+        
+        // Son de bébé depuis music/cri_bebe.mp3
+        const sonBebe = new Audio('music/cri_bebe.mp3');
+        sonBebe.play().catch(e => console.log("Erreur son:", e));
+        
+        // ARRÊTER LE SON APRÈS 10 SECONDES
+        setTimeout(() => {
+          sonBebe.pause();
+          sonBebe.currentTime = 0;
+          if (!sonJoue) {
+            sonJoue = true;
+            lancerFeuxArtifice();
+          }
+        }, 10000);
+        
+        // Sécurité au cas où le son serait plus court
+        sonBebe.addEventListener('ended', () => {
+          if (!sonJoue) {
+            sonJoue = true;
+            lancerFeuxArtifice();
+          }
+        });
+        
+        return;
+      }
+      
+      countdown++;
+      timerDiv.innerHTML = formaterCompte(countdown);
+    }, 1000);
+  }
+  
+  // ========== ANIMATION DE FOND ==========
+  function animationFond() {
+    ctx.fillStyle = "rgba(0,0,0,0.2)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    fireworks.forEach((f, i) => {
+      f.update();
+      f.draw();
+      if (f.exploded && f.particles.length === 0) {
+        fireworks.splice(i, 1);
+      }
+    });
+    
+    requestAnimationFrame(animationFond);
+  }
+  
+  // ========== DÉMARRAGE ==========
+  demarrerCompteARebours();
+  animationFond();
+</script>
+</body>
+</html>
