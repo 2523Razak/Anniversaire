@@ -3,63 +3,192 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-  <title>🎲 Défis pour ton anniversaire</title>
+  <title>🎡 Roue des Défis - Anniversaire</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
     body {
       min-height: 100vh;
-      background: linear-gradient(145deg, #f3e3d0, #e0cbb0);
+      background: linear-gradient(145deg, #f5e6d3 0%, #e8d2b5 100%);
       display: flex;
       justify-content: center;
       align-items: center;
-      font-family: 'Segoe UI', 'Georgia', serif;
-      padding: 20px;
+      font-family: 'Segoe UI', 'Poppins', system-ui, -apple-system, sans-serif;
+      padding: 16px;
     }
-    .container {
-      text-align: center;
-      background: rgba(255,255,240,0.95);
-      border-radius: 50px;
-      padding: 40px 25px;
-      max-width: 400px;
+
+    .wheel-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
       width: 100%;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+      max-width: 500px;
     }
-    h1 { color: #b45f2b; margin-bottom: 10px; }
-    .sous-titre { color: #e67e22; margin-bottom: 30px; font-size: 0.9rem; }
-    .defi {
-      background: #fff7ed;
-      border-radius: 30px;
-      padding: 30px 20px;
-      margin: 20px 0;
-      border: 2px solid #f3bc6c;
+
+    .roulette-wrapper {
+      position: relative;
+      width: min(400px, 88vw);
+      height: min(400px, 88vw);
+      margin: 0 auto;
     }
-    .defi-emoji { font-size: 3rem; margin-bottom: 15px; }
-    .defi-texte {
-      font-size: 1.2rem;
+
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100% !important;
+      height: 100% !important;
+      border-radius: 50%;
+    }
+
+    .pointer {
+      position: absolute;
+      top: -24px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 24px solid transparent;
+      border-right: 24px solid transparent;
+      border-top: 54px solid #f5b642;
+      filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.2));
+      z-index: 15;
+    }
+
+    .pointer::after {
+      content: "▼";
+      position: absolute;
+      top: -62px;
+      left: -20px;
+      font-size: 32px;
+      color: #ffdd99;
+      text-shadow: 0 1px 2px #a1582a;
+    }
+
+    .btn-spin {
+      background: linear-gradient(135deg, #f3bc6c, #e67e22);
+      border: none;
+      border-radius: 60px;
+      padding: 16px 36px;
+      font-size: 1.3rem;
       font-weight: bold;
-      color: #5a3a25;
-      margin-bottom: 20px;
+      color: white;
+      cursor: pointer;
+      margin-top: 35px;
+      box-shadow: 0 7px 0 #a65217;
+      transition: 0.07s linear;
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      letter-spacing: 1px;
     }
-    .btn {
+
+    .btn-spin:active {
+      transform: translateY(4px);
+      box-shadow: 0 3px 0 #a65217;
+    }
+
+    .btn-spin:disabled {
+      opacity: 0.6;
+      transform: translateY(0);
+      cursor: not-allowed;
+      box-shadow: 0 7px 0 #a65217;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      visibility: hidden;
+      opacity: 0;
+      transition: visibility 0.2s, opacity 0.25s ease;
+    }
+
+    .modal-overlay.active {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    .modal-dialog {
+      background: #fffef5;
+      max-width: 340px;
+      width: 85%;
+      border-radius: 48px;
+      text-align: center;
+      padding: 30px 22px 32px;
+      box-shadow: 0 30px 50px rgba(0, 0, 0, 0.4);
+      transform: scale(0.9);
+      transition: transform 0.25s cubic-bezier(0.34, 1.2, 0.64, 1);
+    }
+
+    .modal-overlay.active .modal-dialog {
+      transform: scale(1);
+    }
+
+    .modal-emoji {
+      font-size: 4rem;
+      margin-bottom: 8px;
+    }
+
+    .modal-title {
+      font-size: 1.3rem;
+      font-weight: bold;
+      color: #b45f2b;
+      margin-bottom: 16px;
+      border-bottom: 2px solid #f3bc6c;
+      display: inline-block;
+      padding-bottom: 6px;
+    }
+
+    .modal-challenge {
+      background: #ffefdb;
+      border-radius: 36px;
+      padding: 20px 14px;
+      margin: 16px 0;
+      font-size: 1rem;
+      font-weight: bold;
+      color: #5a2e12;
+      line-height: 1.45;
+    }
+
+    .modal-footer {
+      font-size: 0.75rem;
+      color: #c56e2c;
+      margin-top: 8px;
+      font-style: italic;
+    }
+
+    .modal-close-btn {
       background: linear-gradient(135deg, #f3bc6c, #e67e22);
       border: none;
       border-radius: 50px;
       padding: 12px 24px;
-      color: white;
       font-weight: bold;
       font-size: 1rem;
+      color: white;
+      margin-top: 12px;
       cursor: pointer;
-      margin: 5px;
+      width: 80%;
     }
-    .btn:active { transform: scale(0.97); }
-    .btn-secondaire {
-      background: linear-gradient(135deg, #c9a76b, #b87e48);
+
+    .modal-close-btn:active {
+      transform: scale(0.96);
     }
-    .footer {
-      margin-top: 20px;
-      font-size: 0.7rem;
-      color: #b87e48;
-    }
+
     #confetti-canvas {
       position: fixed;
       top: 0;
@@ -67,90 +196,396 @@
       width: 100%;
       height: 100%;
       pointer-events: none;
-      z-index: 1000;
+      z-index: 1500;
+    }
+
+    /* Zone cachée pour la capture d'écran */
+    .screenshot-area {
+      position: fixed;
+      bottom: -9999px;
+      left: 0;
+      background: #fffef5;
+      padding: 30px;
+      border-radius: 48px;
+      text-align: center;
+      width: 400px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    }
+
+    .screenshot-area .modal-emoji {
+      font-size: 4rem;
+    }
+    .screenshot-area .modal-title {
+      font-size: 1.3rem;
+      font-weight: bold;
+      color: #b45f2b;
+    }
+    .screenshot-area .modal-challenge {
+      background: #ffefdb;
+      border-radius: 36px;
+      padding: 20px;
+      font-weight: bold;
+      color: #5a2e12;
+    }
+
+    @media (max-width: 500px) {
+      .btn-spin {
+        padding: 13px 28px;
+        font-size: 1.15rem;
+        margin-top: 28px;
+      }
+      .pointer {
+        top: -20px;
+        border-left: 20px solid transparent;
+        border-right: 20px solid transparent;
+        border-top: 46px solid #f5b642;
+      }
+      .pointer::after {
+        top: -54px;
+        left: -17px;
+        font-size: 28px;
+      }
     }
   </style>
 </head>
 <body>
-<div class="container">
-  <h1>🎲 DÉFIS D'ANNIVERSAIRE 🎲</h1>
-  <div class="sous-titre">À réaliser... quand tu veux !</div>
-  
-  <div class="defi">
-    <div class="defi-emoji" id="defiEmoji">🎁</div>
-    <div class="defi-texte" id="defiTexte">Clique sur le dé pour découvrir ton défi !</div>
-    <button class="btn" id="btnDefi">🎲 Nouveau défi 🎲</button>
+<div class="wheel-container">
+  <div class="roulette-wrapper">
+    <canvas id="wheelCanvas" width="500" height="500"></canvas>
+    <div class="pointer"></div>
   </div>
-  
-  <div>
-    <button class="btn btn-secondaire" id="btnRetour">📖 Retour à l'album</button>
-  </div>
-  <div class="footer">✨ Chaque défi est une petite mission pour notre amitié ✨</div>
+  <button class="btn-spin" id="spinBtn">🎲 LANCER LE DÉFI 🎲</button>
 </div>
+
+<div id="resultModal" class="modal-overlay">
+  <div class="modal-dialog">
+    <div class="modal-emoji" id="modalEmoji">🎁</div>
+    <div class="modal-title">✨ TON DÉFI ✨</div>
+    <div class="modal-challenge" id="modalChallengeText">...</div>
+    <div class="modal-footer">👫 Regarde ce que tu as choisi et fais-le 😋🤪</div>
+    <button class="modal-close-btn" id="closeModalBtn">📸 J'AI COMPRIS - PARTAGER SUR WHATSAPP</button>
+  </div>
+</div>
+
+<!-- Zone cachée pour la capture d'écran -->
+<div id="screenshotArea" class="screenshot-area">
+  <div class="modal-emoji" id="screenshotEmoji">🎁</div>
+  <div class="modal-title">✨ MON DÉFI ANNIVERSAIRE ✨</div>
+  <div class="modal-challenge" id="screenshotChallenge">...</div>
+  <div style="margin-top: 15px; font-size: 12px; color: #c56e2c;">🎉 Défi à réaliser pour mon anniversaire ! 🎉</div>
+</div>
+
 <canvas id="confetti-canvas"></canvas>
 
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <script>
-  // Liste des défis pour SON jour d'anniversaire
-  const defis = [
-    { emoji: "📸", texte: "Prends un selfie avec ton plus beau sourire et envoie-le moi !" },
-    { emoji: "🍕", texte: "Mange quelque chose de délicieux (et pense à moi en le mangeant) 🍰" },
-    { emoji: "🎵", texte: "Écoute notre chanson préférée et danse comme si personne ne regardait !" },
-    { emoji: "💌", texte: "Écris un petit message que tu me liras plus tard, je suis curieuse !" },
-    { emoji: "🎬", texte: "Regarde 5 minutes d'un film qu'on adore et pense à nos fous rires" },
-    { emoji: "☎️", texte: "Appelle-moi ou envoie-moi un vocal pour me dire un mot doux" },
-    { emoji: "📝", texte: "Fais une liste de 3 choses pour lesquelles tu es reconnaissante aujourd'hui" },
-    { emoji: "🕯️", texte: "Fais un vœu (tu peux le garder secret, mais souffle une bougie imaginaire)" },
-    { emoji: "🎁", texte: "Offre-toi un petit cadeau (même un carré de chocolat, ça compte !)" },
-    { emoji: "💭", texte: "Pense à notre meilleur souvenir ensemble et souris" },
-    { emoji: "📖", texte: "Relis un vieux message de nous qui te fait rire" },
-    { emoji: "🌟", texte: "Dis-toi dans le miroir : 'Je suis géniale et je mérite tout le bonheur du monde'" },
-    { emoji: "🎈", texte: "Fais un câlin à un coussin en imaginant que c'est moi" },
-    { emoji: "🫂", texte: "Envoie un message à quelqu'un que tu aimes (autre que moi, oui ça existe)" },
-    { emoji: "✨", texte: "Ferme les yeux et fais 3 vœux pour l'année à venir" }
+  // ==================== TES 20 DÉFIS ====================
+  const defisList = [
+    { emoji: "🌟", texte: "Mets ma photo en photo de profil (DP)" },
+    { emoji: "🌟", texte: "Publie ma photo et écris « Je t’aime »" },
+    { emoji: "🎤", texte: "Chante pour moi une chanson d'amour" },
+    { emoji: "📸", texte: "Utilise ma photo comme photo de profil" },
+    { emoji: "😜", texte: "Fais une grimace, prends un selfie et mets-le en story 1h" },
+    { emoji: "🕺", texte: "Danse comme si personne ne regardait… mais je regarderai la vidéo" },
+    { emoji: "🖼️", texte: "Utilise ma photo comme photo de profil pendant une semaine" },
+    { emoji: "💭", texte: "Si je disparaissais demain, qu’est-ce qui te manquerait le plus chez moi ?" },
+    { emoji: "💞", texte: "Dis-moi que tu m’aimes" },
+    { emoji: "📢", texte: "Publie sur ton statut que je suis ton copain/ta copine" },
+    { emoji: "🫀", texte: "À quel moment as-tu réalisé que notre amitié comptait vraiment pour toi ?" },
+    { emoji: "😍", texte: "Dis-moi que je te plais" },
+    { emoji: "✍️", texte: "Écris 3 qualités que tu aimes chez moi (sans filtre)" },
+    { emoji: "💍", texte: "Dis-moi que tu veux m’épouser" },
+    { emoji: "💭", texte: "Cite un souvenir précis où tu as pensé à moi sans raison" },
+    { emoji: "📊", texte: "Sur une échelle de 1 à 10, à quel point suis-je spécial(e) pour toi ?" },
+    { emoji: "❤️", texte: "Publie ma photo et dis que je suis précieux(se) pour toi" },
+    { emoji: "💍🤵", texte: "Fais-moi ta demande en mariage 💍" },
+    { emoji: "💌", texte: "Envoie-moi un message que tu n’enverrais qu’à quelqu’un de très important" },
+    { emoji: "🫶", texte: "Termine cette phrase : « Avec toi, je me sens… »" }
   ];
-  
-  let canvas = document.getElementById('confetti-canvas'), ctx = canvas.getContext('2d'), animFrame = null;
-  function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-  window.addEventListener('resize', resizeCanvas);
-  resizeCanvas();
-  
-  function startConfetti() {
-    resizeCanvas();
+
+  const N = defisList.length;
+  const anglePerSector = (Math.PI * 2) / N;
+
+  const colorPalette = [
+    "#FFB3BA", "#C5E99B", "#FFDAC1", "#B5EAD7", "#C7CEEA",
+    "#F9C7C2", "#A7E0E0", "#FFC8A2", "#E0BBE4", "#FEC8CD",
+    "#B0E57C", "#FFB347", "#FF6F61", "#6B5B95", "#88B04B",
+    "#F7C548", "#92A8D1", "#F5A9B8", "#B4D3B2", "#F0B27A"
+  ];
+
+  const canvas = document.getElementById('wheelCanvas');
+  const ctx = canvas.getContext('2d');
+  const spinBtn = document.getElementById('spinBtn');
+  const modalOverlay = document.getElementById('resultModal');
+  const modalEmoji = document.getElementById('modalEmoji');
+  const modalChallengeText = document.getElementById('modalChallengeText');
+  const closeModalBtn = document.getElementById('closeModalBtn');
+
+  // Éléments pour la capture
+  const screenshotArea = document.getElementById('screenshotArea');
+  const screenshotEmoji = document.getElementById('screenshotEmoji');
+  const screenshotChallenge = document.getElementById('screenshotChallenge');
+
+  let currentAngle = 0;
+  let spinning = false;
+  let animationId = null;
+  let spinStartTime = 0;
+  const spinDuration = 2000;
+  let spinStartAngle = 0;
+  let spinTargetDelta = 0;
+  let alreadySpun = false;
+  let currentDefiIndex = null;
+
+  // Confettis
+  const confCanvas = document.getElementById('confetti-canvas');
+  const confCtx = confCanvas.getContext('2d');
+  let confettiParticles = [];
+  let confettiAnim = null;
+
+  function resizeConfetti() {
+    confCanvas.width = window.innerWidth;
+    confCanvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resizeConfetti);
+  resizeConfetti();
+
+  function startConfettiBurst() {
+    if (confettiAnim) cancelAnimationFrame(confettiAnim);
+    confettiParticles = [];
+    const colors = ['#FFD966', '#FFB347', '#FF6B6B', '#F9A26C', '#D96C6C', '#F7DC6F', '#85C1E9', '#F1948A'];
+    for (let i = 0; i < 150; i++) {
+      confettiParticles.push({
+        x: Math.random() * confCanvas.width,
+        y: Math.random() * confCanvas.height - confCanvas.height,
+        size: Math.random() * 6 + 3,
+        speedY: Math.random() * 5 + 3,
+        speedX: (Math.random() - 0.5) * 2.5,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        rotation: Math.random() * 360,
+        rotSpeed: (Math.random() - 0.5) * 8
+      });
+    }
     let active = true;
-    const particles = [], colors = ['#ffd966', '#ffb347', '#ff6b6b', '#f9a26c', '#d96c6c'];
-    for (let i = 0; i < 100; i++) {
-      particles.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height - canvas.height, size: Math.random() * 5 + 2, speedY: Math.random() * 4 + 2, speedX: (Math.random() - 0.5) * 2, color: colors[Math.floor(Math.random() * colors.length)], rotation: Math.random() * 360, rotSpeed: (Math.random() - 0.5) * 6 });
+    function drawConfetti() {
+      if (!active) return;
+      confCtx.clearRect(0, 0, confCanvas.width, confCanvas.height);
+      let stillAlive = false;
+      for (let p of confettiParticles) {
+        p.y += p.speedY;
+        p.x += p.speedX;
+        p.rotation += p.rotSpeed;
+        if (p.y < confCanvas.height + 50) stillAlive = true;
+        confCtx.save();
+        confCtx.translate(p.x, p.y);
+        confCtx.rotate(p.rotation * Math.PI / 180);
+        confCtx.fillStyle = p.color;
+        confCtx.fillRect(-p.size/2, -p.size/2, p.size, p.size/1.5);
+        confCtx.restore();
+      }
+      if (stillAlive) confettiAnim = requestAnimationFrame(drawConfetti);
+      else cancelAnimationFrame(confettiAnim);
     }
-    function draw() { 
-      if (!active) return; 
-      ctx.clearRect(0, 0, canvas.width, canvas.height); 
-      let still = false; 
-      for (let p of particles) { 
-        p.y += p.speedY; p.x += p.speedX; p.rotation += p.rotSpeed; 
-        if (p.y < canvas.height + 50) still = true; 
-        ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rotation * Math.PI / 180); 
-        ctx.fillStyle = p.color; ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size/1.5); ctx.restore(); 
-      } 
-      if (still) animFrame = requestAnimationFrame(draw); else cancelAnimationFrame(animFrame); 
+    if (confettiAnim) cancelAnimationFrame(confettiAnim);
+    drawConfetti();
+    setTimeout(() => { active = false; }, 2600);
+  }
+
+  function drawWheel() {
+    if (!ctx) return;
+    const rect = canvas.getBoundingClientRect();
+    const size = rect.width;
+    canvas.width = size;
+    canvas.height = size;
+    const centerX = size / 2;
+    const centerY = size / 2;
+    const radius = size / 2;
+
+    ctx.clearRect(0, 0, size, size);
+    
+    for (let i = 0; i < N; i++) {
+      const start = i * anglePerSector + currentAngle;
+      const end = (i + 1) * anglePerSector + currentAngle;
+      ctx.beginPath();
+      ctx.moveTo(centerX, centerY);
+      ctx.arc(centerX, centerY, radius, start, end);
+      ctx.fillStyle = colorPalette[i % colorPalette.length];
+      ctx.fill();
+      ctx.strokeStyle = "#FFF5E6";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      ctx.save();
+      ctx.translate(centerX, centerY);
+      ctx.rotate(start + anglePerSector / 2);
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      let textRadius = radius * 0.68;
+      let shortText = defisList[i].texte;
+      if (shortText.length > 18) shortText = shortText.substring(0, 16) + "..";
+      ctx.font = `bold ${Math.max(10, radius * 0.07)}px "Segoe UI", "Poppins"`;
+      ctx.fillStyle = "#2c1a0c";
+      ctx.fillText(shortText, textRadius, 6);
+      ctx.font = `${Math.max(13, radius * 0.085)}px "Segoe UI"`;
+      ctx.fillStyle = "#4b2e1a";
+      ctx.fillText(defisList[i].emoji, textRadius - 14, -14);
+      ctx.restore();
     }
-    if (animFrame) cancelAnimationFrame(animFrame); draw(); 
-    setTimeout(() => { active = false; }, 2000);
+
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, radius * 0.06, 0, Math.PI * 2);
+    ctx.fillStyle = "#e67e22";
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, radius * 0.03, 0, Math.PI * 2);
+    ctx.fillStyle = "#f5bc6c";
+    ctx.fill();
   }
-  
-  function afficherDefiAleatoire() {
-    const index = Math.floor(Math.random() * defis.length);
-    document.getElementById('defiEmoji').innerHTML = defis[index].emoji;
-    document.getElementById('defiTexte').innerHTML = defis[index].texte;
-    startConfetti();
+
+  function getCurrentSectorIndex() {
+    const pointerAngle = -Math.PI / 2;
+    let rawAngle = pointerAngle - currentAngle;
+    rawAngle = ((rawAngle % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+    return Math.floor(rawAngle / anglePerSector) % N;
   }
-  
-  document.getElementById('btnDefi').addEventListener('click', afficherDefiAleatoire);
-  document.getElementById('btnRetour').addEventListener('click', () => {
-    window.location.href = 'index.html';
+
+  // Fonction pour capturer l'écran et ouvrir WhatsApp
+  async function captureAndShare() {
+    if (currentDefiIndex === null) return;
+    
+    const defi = defisList[currentDefiIndex];
+    
+    // Mettre à jour la zone de capture
+    screenshotEmoji.innerHTML = defi.emoji;
+    screenshotChallenge.innerHTML = defi.texte;
+    
+    // Petite attente pour que le DOM soit prêt
+    await new Promise(r => setTimeout(r, 100));
+    
+    try {
+      // Capturer la zone
+      const canvas_capture = await html2canvas(screenshotArea, {
+        scale: 2,
+        backgroundColor: '#fffef5',
+        logging: false,
+        useCORS: true
+      });
+      
+      // Convertir en dataURL
+      const imageDataURL = canvas_capture.toDataURL('image/png');
+      
+      // Créer un blob pour l'image
+      const blob = await (await fetch(imageDataURL)).blob();
+      const file = new File([blob], "defi_anniversaire.png", { type: "image/png" });
+      
+      // Vérifier si WhatsApp Web est disponible
+      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+        // Sur mobile avec Web Share API
+        await navigator.share({
+          title: 'Mon défi anniversaire',
+          text: `🎉 J'ai obtenu ce défi ! ${defi.texte}`,
+          files: [file]
+        });
+      } else {
+        // Alternative: ouvrir WhatsApp directement avec texte + image encodée
+        const encodedText = encodeURIComponent(`🎉 MON DÉFI ANNIVERSAIRE 🎉\n\n${defi.emoji} ${defi.texte}\n\n👫 Je dois le faire ! 😋🤪`);
+        window.open(`https://wa.me/22796165826?text=${encodedText}`, '_blank');
+      }
+      
+      // Fermer la modale après partage
+      modalOverlay.classList.remove('active');
+      
+    } catch (error) {
+      console.error("Erreur capture:", error);
+      // Fallback: ouvrir WhatsApp avec juste le texte
+      const encodedText = encodeURIComponent(`🎉 MON DÉFI ANNIVERSAIRE 🎉\n\n${defisList[currentDefiIndex].emoji} ${defisList[currentDefiIndex].texte}\n\n👫 Je dois le faire ! 😋🤪`);
+      window.open(`https://wa.me/22796165826?text=${encodedText}`, '_blank');
+      modalOverlay.classList.remove('active');
+    }
+  }
+
+  function showModalWithChallenge(index) {
+    const defi = defisList[index];
+    currentDefiIndex = index;
+    modalEmoji.innerHTML = defi.emoji;
+    modalChallengeText.innerHTML = defi.texte;
+    modalOverlay.classList.add('active');
+    startConfettiBurst();
+  }
+
+  function closeModal() {
+    modalOverlay.classList.remove('active');
+  }
+
+  function stopWheelAndShow() {
+    if (!spinning) return;
+    spinning = false;
+    if (animationId) cancelAnimationFrame(animationId);
+    animationId = null;
+    alreadySpun = true;
+    spinBtn.disabled = true;
+    const finalIdx = getCurrentSectorIndex();
+    showModalWithChallenge(finalIdx);
+  }
+
+  function animateSpin(timestamp) {
+    if (!spinning) return;
+    const elapsed = timestamp - spinStartTime;
+    let t = Math.min(1, elapsed / spinDuration);
+    const easeOut = 1 - Math.pow(1 - t, 3);
+    const currentDelta = spinTargetDelta * easeOut;
+    currentAngle = spinStartAngle + currentDelta;
+    drawWheel();
+    if (t >= 1) {
+      stopWheelAndShow();
+    } else {
+      animationId = requestAnimationFrame(animateSpin);
+    }
+  }
+
+  function startSpin() {
+    if (spinning) return;
+    if (alreadySpun) return;
+    
+    const extraFullTurns = 6 + Math.floor(Math.random() * 9);
+    const randomRad = Math.random() * Math.PI * 2;
+    const targetDelta = (extraFullTurns * 2 * Math.PI) + randomRad;
+    
+    spinStartAngle = currentAngle;
+    spinTargetDelta = targetDelta;
+    spinStartTime = performance.now();
+    spinning = true;
+    spinBtn.disabled = true;
+    animationId = requestAnimationFrame(animateSpin);
+  }
+
+  let resizeTimer;
+  function handleResize() {
+    if (resizeTimer) clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      drawWheel();
+      resizeConfetti();
+    }, 100);
+  }
+  window.addEventListener('resize', handleResize);
+  window.addEventListener('orientationchange', () => setTimeout(() => drawWheel(), 30));
+
+  function init() {
+    currentAngle = Math.random() * Math.PI * 2;
+    drawWheel();
+    alreadySpun = false;
+    spinning = false;
+    spinBtn.disabled = false;
+    currentDefiIndex = null;
+    if (animationId) cancelAnimationFrame(animationId);
+  }
+
+  spinBtn.addEventListener('click', startSpin);
+  closeModalBtn.addEventListener('click', captureAndShare);
+  modalOverlay.addEventListener('click', (e) => {
+    if (e.target === modalOverlay) closeModal();
   });
-  
-  // Afficher un premier défi au chargement
-  afficherDefiAleatoire();
+
+  init();
 </script>
 </body>
 </html>
