@@ -235,6 +235,89 @@
       z-index: 5;
     }
     
+    /* ========== STYLES DU MESSAGE FINAL (MODE PLEIN ÉCRAN) ========== */
+    .final-message-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.92);
+      backdrop-filter: blur(15px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 20px;
+      box-sizing: border-box;
+      overflow-y: auto;
+      animation: fadeIn 0.8s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .final-message-card {
+      background: rgba(20, 20, 30, 0.9);
+      border: 2px solid #ffd700;
+      border-radius: 30px;
+      padding: 25px 20px;
+      max-width: 600px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 0 50px rgba(255, 215, 0, 0.3);
+      color: #f0e6d0;
+      text-align: center;
+      position: relative;
+    }
+
+    .final-message-card h2 {
+      color: #ffd700;
+      font-size: 1.8rem;
+      margin-bottom: 20px;
+      text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+      line-height: 1.2;
+    }
+
+    .final-message-card p {
+      font-size: 1rem;
+      line-height: 1.6;
+      margin-bottom: 15px;
+      text-align: left;
+    }
+
+    .final-message-card .signature {
+      font-style: italic;
+      color: #ffd700;
+      text-align: right;
+      margin-top: 25px;
+      font-size: 1.1rem;
+      border-top: 1px solid rgba(255, 215, 0, 0.2);
+      padding-top: 15px;
+    }
+
+    .btn-continuer {
+      margin-top: 25px;
+      padding: 12px 40px;
+      background: linear-gradient(135deg, #ffd700, #ff8c00);
+      border: none;
+      border-radius: 50px;
+      font-weight: bold;
+      font-size: 1.1rem;
+      cursor: pointer;
+      color: #1a1a1a;
+      transition: transform 0.2s;
+      box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+    }
+
+    .btn-continuer:hover {
+      transform: scale(1.05);
+    }
+
     /* Responsive mobile */
     @media (max-width: 480px) {
       body { padding: 5px; }
@@ -245,10 +328,24 @@
       .cake-wrapper.visible { transform: scale(0.75); margin: -20px auto; }
       .cake-container { width: 320px; height: 320px; }
       .souffle-indication { font-size: 0.75rem; }
+      
+      .final-message-card {
+        padding: 20px 15px;
+        border-radius: 20px;
+      }
+      .final-message-card h2 {
+        font-size: 1.4rem;
+      }
+      .final-message-card p {
+        font-size: 0.9rem;
+      }
     }
     
     @media (max-width: 380px) {
       .cake-wrapper.visible { transform: scale(0.65); margin: -40px auto; }
+      .final-message-card p {
+        font-size: 0.8rem;
+      }
     }
   </style>
 </head>
@@ -443,40 +540,54 @@
       }
     }, 500);
     
-    // Afficher message final
+    // Afficher le message final (version mobile-friendly avec le nouveau texte)
     setTimeout(() => {
-      const messageDiv = document.createElement('div');
-      messageDiv.style.position = 'fixed';
-      messageDiv.style.top = '50%';
-      messageDiv.style.left = '50%';
-      messageDiv.style.transform = 'translate(-50%, -50%)';
-      messageDiv.style.background = 'rgba(0,0,0,0.95)';
-      messageDiv.style.color = '#ffd700';
-      messageDiv.style.padding = '20px 25px';
-      messageDiv.style.borderRadius = '25px';
-      messageDiv.style.textAlign = 'center';
-      messageDiv.style.zIndex = '1000';
-      messageDiv.style.fontSize = '1rem';
-      messageDiv.style.border = '2px solid gold';
-      messageDiv.style.backdropFilter = 'blur(10px)';
-      messageDiv.style.maxWidth = '90%';
-      messageDiv.innerHTML = `
-        🎂✨ JOYEUX ANNIVERSAIRE ! ✨🎂
-        <div style="font-size: 0.9rem; margin-top: 15px; color: white; line-height: 1.5;">
-          💖 Ma petite sorcière préférée,<br><br>
-          Je te souhaite le plus merveilleux des anniversaires !<br>
-          Merci pour ces années de bonheur, de rires et de magie.<br><br>
-          Je t'aime très fort, ma marmotte adorée ! 🫶<br><br>
-          🎁 Que cette nouvelle année soit remplie de joie ! 🎁
-        </div>
-        <button id="btnContinuer" style="margin-top: 20px; padding: 10px 30px; background: linear-gradient(135deg, #ffd700, #ff8c00); border: none; border-radius: 50px; font-weight: bold; cursor: pointer; font-size: 0.9rem;">✨ Continuer ✨</button>
-      `;
-      document.body.appendChild(messageDiv);
-      
-      document.getElementById('btnContinuer').addEventListener('click', () => {
-        window.location.href = 'defis.html';
-      });
+      afficherMessageFinal();
     }, 2500);
+  }
+  
+  // ========== AFFICHER MESSAGE FINAL (MISE À JOUR) ==========
+  function afficherMessageFinal() {
+    // Créer l'overlay
+    const overlay = document.createElement('div');
+    overlay.className = 'final-message-overlay';
+    
+    // Créer la carte du message
+    const card = document.createElement('div');
+    card.className = 'final-message-card';
+    
+    // Contenu HTML du message (avec le texte fourni)
+    card.innerHTML = `
+      <h2>🎉🎂 Joyeux anniversaire à ma petite sorcière ! 🎂🎉</h2>
+      
+      <p>Aujourd'hui, c'est le jour où le monde a eu la brillante idée de te laisser débarquer parmi nous, et franchement, même si parfois tu es un mélange de sagesse, de folie et de fuite stratégique quand une discussion ne te plaît pas 😂, je pense que c'était une excellente décision.</p>
+      
+      <p>Tu sais, notre histoire est assez étrange quand on y réfléchit. On a connu des hauts, des bas, des moments où on s'est pris la tête, des moments où on a rigolé jusqu'à en avoir mal au ventre, mais malgré tout ça, on ne s'est jamais quittés. Le plus drôle dans tout ça ? On ne s'est même jamais vus physiquement. Pourtant, on parle, on se raconte nos vies, nos problèmes, nos joies, nos délires, comme si on était voisins depuis des années.</p>
+      
+      <p>Je ne sais même pas comment définir notre relation, mais une chose est sûre : je suis fier de l'avoir vécue avec toi, et j'espère la garder jusqu'à la fin, inch'Allah. Parce qu'honnêtement, des personnes comme toi, on n'en croise pas tous les jours.</p>
+      
+      <p>Et si je t'appelle ma petite sorcière, ce n'est pas pour rien. Avec toi, je peux être moi-même sans masque ni gêne. Je peux te raconter ce que j'ai sur le cœur, me confier, dire ce que je pense, même quand je raconte n'importe quoi 😅. Tu ne me juges pas, même si parfois tu prends la fuite quand mes paroles ne te plaisent pas 😂.</p>
+      
+      <p>Alors oui, tu es ma petite sorcière, parce que d'une manière ou d'une autre, tu réussis toujours à m'envoûter à chaque conversation. Une notification de toi et hop, le sourire apparaît comme par magie.</p>
+      
+      <p>En ce jour spécial, je demande à Allah de te combler de Ses bienfaits, de te préserver, de t'accorder une excellente santé, la paix du cœur, le bonheur dans cette vie et dans l'au-delà. Qu'Allah facilite chacun de tes pas, exauce tes bonnes invocations et mette la baraka dans tout ce que tu entreprends.</p>
+      
+      <p>Et puisque cette année est une année importante pour toi, je prie également qu'Allah t'accorde la réussite à ton Bac avec d'excellents résultats, qu'Il éloigne de toi le stress et les difficultés, et qu'Il t'ouvre les portes d'un avenir rempli de succès, de connaissances utiles et d'opportunités.</p>
+      
+      <p>Profite bien de ta journée, mange beaucoup de gâteau (mais pas trop, la sorcière 😏), et n'oublie jamais que tu occupes une place particulière dans ma vie.</p>
+      
+      <div class="signature">Joyeux anniversaire, petite sorcière. ❤️🎉<br>Qu'Allah te protège et te guide toujours vers ce qu'il y a de meilleur. 🤲✨</div>
+      
+      <button class="btn-continuer" id="btnContinuer">✨ Continuer ✨</button>
+    `;
+    
+    overlay.appendChild(card);
+    document.body.appendChild(overlay);
+    
+    // Gestion du clic sur le bouton Continuer
+    document.getElementById('btnContinuer').addEventListener('click', () => {
+      window.location.href = 'defis.html';
+    });
   }
   
   // ========== ACTIVER SOUFFLE ==========
