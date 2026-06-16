@@ -235,7 +235,101 @@
       z-index: 5;
     }
     
-    /* ========== STYLES DU MESSAGE FINAL (MODE PLEIN ÉCRAN) ========== */
+    /* ========== OVERLAY BÉBÉ (arrivée à 3h45) ========== */
+    .baby-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(8px);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 20px;
+      animation: fadeIn 0.8s ease-out;
+    }
+    
+    .baby-overlay.show {
+      display: flex;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    
+    .baby-card {
+      background: rgba(255, 215, 0, 0.1);
+      border: 3px solid #ffd700;
+      border-radius: 40px;
+      padding: 30px 25px 35px;
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 0 60px rgba(255, 215, 0, 0.2);
+    }
+    
+    .baby-emoji {
+      font-size: 5rem;
+      display: block;
+      margin-bottom: 10px;
+      animation: bounceBaby 1s ease-in-out infinite;
+    }
+    
+    @keyframes bounceBaby {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    
+    .baby-card h2 {
+      color: #ffd700;
+      font-size: 1.8rem;
+      margin-bottom: 5px;
+      text-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+    }
+    
+    .baby-card .heure-naissance {
+      color: #fff5d0;
+      font-size: 2.5rem;
+      font-weight: bold;
+      font-family: monospace;
+      letter-spacing: 5px;
+      background: rgba(0,0,0,0.5);
+      padding: 8px 20px;
+      border-radius: 50px;
+      display: inline-block;
+      margin: 10px 0;
+      border: 1px solid rgba(255,215,0,0.3);
+    }
+    
+    .baby-card p {
+      color: #f0e6d0;
+      font-size: 1rem;
+      line-height: 1.5;
+      margin-top: 10px;
+      opacity: 0.9;
+    }
+    
+    .baby-card .subtitle {
+      color: #ffd700;
+      font-size: 0.9rem;
+      font-style: italic;
+      margin-top: 5px;
+    }
+    
+    .baby-card .prenom {
+      color: #fff5d0;
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin: 5px 0 0 0;
+      text-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+    }
+    
+    /* ========== MESSAGE FINAL ========== */
     .final-message-overlay {
       position: fixed;
       top: 0;
@@ -244,7 +338,7 @@
       height: 100%;
       background: rgba(0,0,0,0.92);
       backdrop-filter: blur(15px);
-      display: flex;
+      display: none;
       flex-direction: column;
       align-items: center;
       justify-content: center;
@@ -255,9 +349,8 @@
       animation: fadeIn 0.8s ease-out;
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: scale(0.9); }
-      to { opacity: 1; transform: scale(1); }
+    .final-message-overlay.show {
+      display: flex;
     }
 
     .final-message-card {
@@ -329,6 +422,12 @@
       .cake-container { width: 320px; height: 320px; }
       .souffle-indication { font-size: 0.75rem; }
       
+      .baby-card { padding: 20px 15px; }
+      .baby-emoji { font-size: 4rem; }
+      .baby-card h2 { font-size: 1.4rem; }
+      .baby-card .heure-naissance { font-size: 2rem; padding: 6px 15px; }
+      .baby-card .prenom { font-size: 1.2rem; }
+      
       .final-message-card {
         padding: 20px 15px;
         border-radius: 20px;
@@ -343,6 +442,9 @@
     
     @media (max-width: 380px) {
       .cake-wrapper.visible { transform: scale(0.65); margin: -40px auto; }
+      .baby-emoji { font-size: 3.5rem; }
+      .baby-card .heure-naissance { font-size: 1.7rem; }
+      .baby-card .prenom { font-size: 1rem; }
       .final-message-card p {
         font-size: 0.8rem;
       }
@@ -356,6 +458,18 @@
   <div class="timer" id="timer">03:44:50</div>
   <div class="message-sorciere" id="messageSorciere">🧙‍♀️ Une petite sorcière arrive bientôt... 🧙‍♀️</div>
   <div class="souffle-indication" id="souffleIndication">✨ Souffle sur les bougies (micro ou clique dessus) ! ✨</div>
+</div>
+
+<!-- ===== OVERLAY BÉBÉ (arrivée à 3h45) ===== -->
+<div class="baby-overlay" id="babyOverlay">
+  <div class="baby-card">
+    <span class="baby-emoji">👶🎀</span>
+    <h2>🌟 Elle est arrivée ! 🌟</h2>
+    <div class="heure-naissance">🕒 03:45</div>
+    <p class="prenom">🌸 Nana Firdaoussi 🌸</p>
+    <p>Une petite fille est née !</p>
+    <p class="subtitle">Bienvenue dans ce monde, petite sorcière ✨</p>
+  </div>
 </div>
 
 <div class="cake-wrapper" id="cakeWrapper">
@@ -399,6 +513,7 @@
   const messageSorciereDiv = document.getElementById('messageSorciere');
   const souffleIndication = document.getElementById('souffleIndication');
   const cakeWrapper = document.getElementById('cakeWrapper');
+  const babyOverlay = document.getElementById('babyOverlay');
   
   const flames = [
     document.getElementById('flame0'),
@@ -540,25 +655,22 @@
       }
     }, 500);
     
-    // Afficher le message final (version mobile-friendly avec le nouveau texte)
+    // Afficher le message final
     setTimeout(() => {
       afficherMessageFinal();
     }, 2500);
   }
   
-  // ========== AFFICHER MESSAGE FINAL (MISE À JOUR) ==========
+  // ========== AFFICHER MESSAGE FINAL ==========
   function afficherMessageFinal() {
-    // Créer l'overlay
     const overlay = document.createElement('div');
-    overlay.className = 'final-message-overlay';
+    overlay.className = 'final-message-overlay show';
     
-    // Créer la carte du message
     const card = document.createElement('div');
     card.className = 'final-message-card';
     
-    // Contenu HTML du message (avec le texte fourni)
     card.innerHTML = `
-      <h2>🎉🎂 Joyeux anniversaire à ma petite sorcière ! 🎂🎉</h2>
+      <h2>🎉🎂 Joyeux anniversaire à ma petite sorcière Nana Firdaoussi ! 🎂🎉</h2>
       
       <p>Aujourd'hui, c'est le jour où le monde a eu la brillante idée de te laisser débarquer parmi nous, et franchement, même si parfois tu es un mélange de sagesse, de folie et de fuite stratégique quand une discussion ne te plaît pas 😂, je pense que c'était une excellente décision.</p>
       
@@ -576,7 +688,7 @@
       
       <p>Profite bien de ta journée, mange beaucoup de gâteau (mais pas trop, la sorcière 😏), et n'oublie jamais que tu occupes une place particulière dans ma vie.</p>
       
-      <div class="signature">Joyeux anniversaire, petite sorcière. ❤️🎉<br>Qu'Allah te protège et te guide toujours vers ce qu'il y a de meilleur. 🤲✨</div>
+      <div class="signature">Joyeux anniversaire, Nana Firdaoussi. ❤️🎉<br>Qu'Allah te protège et te guide toujours vers ce qu'il y a de meilleur. 🤲✨</div>
       
       <button class="btn-continuer" id="btnContinuer">✨ Continuer ✨</button>
     `;
@@ -584,7 +696,6 @@
     overlay.appendChild(card);
     document.body.appendChild(overlay);
     
-    // Gestion du clic sur le bouton Continuer
     document.getElementById('btnContinuer').addEventListener('click', () => {
       window.location.href = 'defis.html';
     });
@@ -664,29 +775,37 @@
       if (countdown >= 10) {
         clearInterval(interval);
         timerDiv.innerHTML = "03:45:00";
-        messageSorciereDiv.innerHTML = "🎉 C'EST L'HEURE ! LA SORCIÈRE ARRIVE ! 🎉";
+        messageSorciereDiv.innerHTML = "🎉 C'EST L'HEURE ! NANA FIRDAOUSSI ARRIVE ! 🎉";
         
         // Faire disparaître le compte à rebours
         container.classList.add('hide');
         
-        // Son de bébé depuis music/cri_bebe.mp3
+        // === AFFICHER L'OVERLAY BÉBÉ ===
+        babyOverlay.classList.add('show');
+        
+        // Son de bébé
         const sonBebe = new Audio('music/cri_bebe.mp3');
         sonBebe.play().catch(e => console.log("Erreur son:", e));
         
-        // ARRÊTER LE SON APRÈS 10 SECONDES
+        // Cacher l'overlay bébé après 4 secondes et lancer les feux d'artifice
         setTimeout(() => {
+          babyOverlay.classList.remove('show');
+          
+          // Arrêter le son
           sonBebe.pause();
           sonBebe.currentTime = 0;
+          
           if (!sonJoue) {
             sonJoue = true;
             lancerFeuxArtifice();
           }
-        }, 10000);
+        }, 4000);
         
-        // Sécurité au cas où le son serait plus court
+        // Sécurité au cas où le son se termine avant
         sonBebe.addEventListener('ended', () => {
           if (!sonJoue) {
             sonJoue = true;
+            babyOverlay.classList.remove('show');
             lancerFeuxArtifice();
           }
         });
